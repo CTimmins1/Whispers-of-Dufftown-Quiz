@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Whisper of Dufftown</title>
+  <!-- Updated EmailJS SDK URL -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Georgia', serif;
+      background-color: #1b1b1b;
+      color: #f0e6d2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 800px;
+      padding: 2rem;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .container.visible {
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #intro {
+      position: relative;
+      z-index: 1;
+      background: radial-gradient(circle at center, rgba(139, 69, 19, 0.3) 0%, rgba(27, 27, 27, 0.8) 70%);
+      padding: 3rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(139, 69, 19, 0.4);
+      animation: flickerLight 4s ease-in-out infinite;
+      overflow: hidden;
+      opacity: 1;
+    }
+
+    #intro::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: url('https://www.transparenttextures.com/patterns/transparent-smoke.png') repeat-x;
+      opacity: 0.15;
+      z-index: -1;
+      animation: driftMist 20s linear infinite;
+    }
+
+    @keyframes flickerLight {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.95; }
+      25%, 75% { opacity: 0.98; }
+    }
+
+    @keyframes driftMist {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    #intro h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 8px rgba(255, 223, 94, 0.5);
+      animation: fadeInGlow 1.5s ease-in;
+    }
+
+    #intro p {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      margin: 1rem 0;
+      color: #f0e6d2;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeInGlow 1.5s ease-in 0.3s;
+    }
+
+    @keyframes fadeInGlow {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    #intro input[type="text"] {
+      background: #fff;
+      box-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+      z-index: 2;
+    }
+
+    #intro .next-btn {
+      z-index: 2;
+      box-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+    }
+
+    .question {
+      font-size: 1.4rem;
+      margin-bottom: 2rem;
+    }
+
+    .options,
+    .doors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .option,
+    .next-btn {
+      padding: 1rem 2rem;
+      background-color: #8B4513;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .option:hover {
+      background-color: #a0522d;
+      transform: scale(1.05);
+    }
+
+    .option:active,
+    .next-btn:active {
+      animation: shimmer 0.5s ease-in-out;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-color: #8B4513;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0);
+      }
+      50% {
+        background-color: #f4a300;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+      100% {
+        background-color: #8B4513;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0);
+      }
+    }
+
+    .door {
+      width: 125px;
+      height: 225px;
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      box-shadow: inset 0 0 10px #00000055, 2px 5px 10px rgba(0, 0, 0, 0.6);
+      border: 3px solid #42210b;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-size: 1.2rem;
+    }
+
+    .door::after {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 30px;
+      background-color: #000000;
+      border-radius: 2px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .door:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .door:active {
+      transform: scale(0.97) rotateY(15deg);
+    }
+
+    .red {
+      background-image: linear-gradient(#B22222cc, #8B0000cc), url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+      color: #fff;
+    }
+
+    .green {
+      background-image: linear-gradient(#2E8B57cc, #006400cc), url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+      color: #fff;
+    }
+
+    .blue {
+      background-image: linear-gradient(#4682B4cc, #1E3F66cc), url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+      color: #fff;
+    }
+
+    .yellow {
+      background-image: linear-gradient(#FFD700cc, #DAA520cc), url('https://www.transparenttextures.com/patterns/wood-pattern.png');
+      color: #000;
+    }
+
+    .next-btn {
+      margin-top: 2rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #5a381e;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      margin-top: 1rem;
+      width: auto;
+      display: inline-block;
+    }
+
+    .next-btn:hover {
+      background-color: #754828;
+    }
+
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      margin-top: 1rem;
+      width: 60%;
+    }
+
+    #parchment {
+      background: url('https://www.transparenttextures.com/patterns/paper-fibers.png') no-repeat center center, linear-gradient(#f4e8c1, #e6d7a3);
+      background-size: cover;
+      padding: 2.5rem;
+      font-size: 1.2rem;
+      color: #2b1e0e;
+      border-radius: 20px 20px 15px 15px;
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        inset 0 0 8px rgba(139, 69, 19, 0.3),
+        -5px 0 10px rgba(0, 0, 0, 0.2),
+        5px 0 10px rgba(0, 0, 0, 0.2);
+      border: 2px solid #8b4513;
+      margin: 1rem auto;
+      max-width: 90%;
+      position: relative;
+      overflow: hidden;
+      transform-origin: center;
+      transition: all 0.3s ease;
+    }
+
+    #summary:not(.visible) #parchment {
+      width: 50px;
+      border-radius: 50px;
+      padding: 2.5rem 1rem;
+      opacity: 0.7;
+    }
+
+    #summary.visible #parchment {
+      width: 100%;
+      border-radius: 20px 20px 15px 15px;
+      opacity: 1;
+      animation: unrollParchment 1.5s ease-out forwards;
+    }
+
+    @keyframes unrollParchment {
+      0% {
+        width: 50px;
+        border-radius: 50px;
+        padding: 2.5rem 1rem;
+        transform: scaleY(0.8);
+      }
+      50% {
+        width: 60%;
+        border-radius: 30px;
+        transform: scaleY(1.05);
+      }
+      100% {
+        width: 100%;
+        border-radius: 20px 20px 15px 15px;
+        padding: 2.5rem;
+        transform: scaleY(1);
+      }
+    }
+
+    #parchment p {
+      margin: 0.8rem 0;
+      color: #2b1e0e;
+      line-height: 1.6;
+      font-weight: 500;
+      opacity: 0;
+      animation: fadeInText 0.5s ease-in forwards;
+      animation-delay: 1s;
+    }
+
+    @keyframes fadeInText {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feedback {
+      font-size: 1rem;
+      margin-top: 1rem;
+      color: #ffdf5e;
+      animation: fadeOut 3s ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Intro with name input -->
+  <div class="container" id="intro">
+    <h1>The Whisper of Dufftown</h1>
+    <p>In Dufftown, where the seven stills hum and the air weaves memories into mist, a path awaits you. Each choice you
+      make will shape your journey through this Speyside spirit realm, binding you to its secrets. Once you choose,
+      there is no turning back—your fate will unfurl like a dram poured under starlight.</p>
+    <p>Write your name to step into the story...</p>
+    <input type="text" id="userName" placeholder="Enter your name to begin..." />
+    <button class="next-btn" id="begin-btn" onclick="startJourney()">Begin</button>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="container hidden" id="q1">
+    <div class="question">1) You arrive in Dufftown with a note: “Begin where the colour feels right.” Four doors appear
+      — Red, Green, Blue, and Yellow. Which do you open?</div>
+    <div class="doors">
+      <div class="door red" onclick="recordAnswer(1, 'Red')">Red</div>
+      <div class="door green" onclick="recordAnswer(1, 'Green')">Green</div>
+      <div class="door blue" onclick="recordAnswer(1, 'Blue')">Blue</div>
+      <div class="door yellow" onclick="recordAnswer(1, 'Yellow')">Yellow</div>
+    </div>
+    <div class="feedback" id="feedback1"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="container hidden" id="q2">
+    <div class="question">2) A breeze brushes past you, a wave of calm. Was it a herbal aroma, a fruity one, or citric?
+    </div>
+    <div class="options">
+      <div class="option" onclick="recordAnswer(2, 'Herbal')">Herbal</div>
+      <div class="option" onclick="recordAnswer(2, 'Fruity')">Fruity</div>
+      <div class="option" onclick="recordAnswer(2, 'Citric')">Citric</div>
+    </div>
+    <div class="feedback" id="feedback2"></div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="container hidden" id="q3">
+    <div class="question">3) Inside, a dram waits. One sip and your tongue lights up straight away - Did you find notes
+      of white chocolate, Brown Chocolate Sugar, or is it a mix of Both?</div>
+    <div class="options">
+      <div class="option" onclick="recordAnswer(3, 'White Chocolate')">White Chocolate</div>
+      <div class="option" onclick="recordAnswer(3, 'Brown Chocolate Sugar')">Brown Chocolate Sugar</div>
+      <div class="option" onclick="recordAnswer(3, 'Both')">Both</div>
+    </div>
+    <div class="feedback" id="feedback3"></div>
+  </div>
+
+  <!-- Question 4 -->
+  <div class="container hidden" id="q4">
+    <div class="question">4) Suddenly, music spills from the walls. It's a song you haven't heard in years, a song that
+      takes you back to the best of your memories. Which song is it?</div>
+    <div class="options">
+      <input type="text" id="songInput" placeholder="Enter the song name..." />
+      <button class="next-btn submit-btn" onclick="recordTextAnswer(4, 'songInput')">Submit</button>
+    </div>
+    <div class="feedback" id="feedback4"></div>
+  </div>
+
+  <!-- Question 5 -->
+  <div class="container hidden" id="q5">
+    <div class="question">5) A master blender in a tweed jacket steps forward and says: "Choose your barrel". One is
+      marked "Now," the other "Not Yet." Which do you taste from?</div>
+    <div class="options">
+      <div class="option" onclick="recordAnswer(5, 'Now')">Now</div>
+      <div class="option" onclick="recordAnswer(5, 'Not Yet')">Not Yet</div>
+    </div>
+    <div class="feedback" id="feedback5"></div>
+  </div>
+
+  <!-- Question 6 -->
+  <div class="container hidden" id="q6">
+    <div class="question">6) You follow the master blender through a narrow stone hallway. At the end, two rooms appear
+      one filled with mirrors reflecting endless versions of you, the other covered in old whisky-stained journals.
+      Which do you step into?</div>
+    <div class="options">
+      <div class="option" onclick="recordAnswer(6, 'The Room of Reflections')">The Room of Reflections</div>
+      <div class="option" onclick="recordAnswer(6, 'The Room of Stories')">The Room of Stories</div>
+    </div>
+    <div class="feedback" id="feedback6"></div>
+  </div>
+
+  <!-- Question 7 -->
+  <div class="container hidden" id="q7">
+    <div class="question">7) The room fades, and you're carried to the final stop. You're no longer indoors, but in a
+      wild Speyside glen - the river whispers nearby, dusk settles over the hills, and the scent of woodsmoke lingers in
+      the air. At the heart of it all, the "Lost Sip" awaits. You take it in. One word - how do you feel?</div>
+    <div class="options">
+      <input type="text" id="feelingInput" placeholder="Enter one word..." />
+      <button class="next-btn submit-btn" onclick="recordTextAnswer(7, 'feelingInput')">Submit</button>
+    </div>
+    <div class="feedback" id="feedback7"></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="container hidden" id="summary">
+    <h2>Your Journey Through Dufftown</h2>
+    <div id="parchment">
+      <p><strong>Your Name:</strong> <span id="userNameDisplay"></span></p>
+      <p><strong>Summary of Answers:</strong></p>
+      <div id="answersDisplay"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentQuestion = 0;
+    const answers = [];
+    let userName = "";
+
+    // Initialize EmailJS after the SDK has loaded
+    if (typeof emailjs === 'undefined') {
+      console.error("EmailJS SDK failed to load. Please check the script URL.");
+    } else {
+      emailjs.init("NeQ375-9onetWehiG");
+      console.log("EmailJS initialized successfully");
+    }
+
+    function startJourney() {
+      const input = document.getElementById('userName').value.trim();
+      if (!input) {
+        alert("Please enter your name to begin.");
+        return;
+      }
+      userName = input;
+      next();
+    }
+
+    function showQuestion(q) {
+      document.querySelectorAll('.container').forEach(container => {
+        container.classList.remove('visible');
+        container.classList.add('hidden');
+      });
+
+      if (q === 0) {
+        document.getElementById('intro').classList.remove('hidden');
+        document.getElementById('intro').classList.add('visible');
+        return;
+      }
+
+      if (q > 7) {
+        showSummary();
+        return;
+      }
+
+      const question = document.getElementById(`q${q}`);
+      if (question) {
+        question.classList.remove('hidden');
+        question.classList.add('visible');
+      }
+    }
+
+    function recordTextAnswer(questionNumber, inputId) {
+      const input = document.getElementById(inputId).value.trim();
+      if (!input) {
+        alert("Please enter an answer.");
+        return;
+      }
+      answers[questionNumber - 1] = input;
+      const feedback = document.getElementById(`feedback${questionNumber}`);
+      if (feedback) {
+        feedback.textContent = `You entered: ${input}`;
+      }
+      setTimeout(() => {
+        next();
+      }, 1000);
+    }
+
+    function next() {
+      currentQuestion++;
+      showQuestion(currentQuestion);
+    }
+
+    function recordAnswer(questionNumber, answer) {
+      answers[questionNumber - 1] = answer;
+      const feedback = document.getElementById(`feedback${questionNumber}`);
+      if (feedback) {
+        feedback.textContent = `You chose: ${answer}`;
+      }
+      setTimeout(() => {
+        next();
+      }, 1000);
+    }
+
+    function sendResultsByEmail(name, htmlAnswers) {
+      if (typeof emailjs === 'undefined') {
+        console.error("EmailJS is not defined. Cannot send email.");
+        alert("Failed to send your answers. The mist has obscured the path—please try again later.");
+        return;
+      }
+
+      const plainAnswers = answers.map((a, i) => `Q${i + 1}: ${a}`).join("\n");
+
+      emailjs.send("service_b5yrgv7", "template_th5467l", {
+        user_name: name,
+        answers: plainAnswers,
+      }).then(
+        function (response) {
+          console.log("Email successfully sent!", response.status, response.text);
+          alert("Your journey’s answers have been sent to the keeper of Dufftown’s secrets!");
+        },
+        function (error) {
+          console.error("Failed to send email:", JSON.stringify(error));
+          alert("Failed to send your answers. The mist has obscured the path—please try again later.");
+        }
+      );
+    }
+
+    function showSummary() {
+      document.querySelectorAll('.container').forEach(container => {
+        container.classList.remove('visible');
+        container.classList.add('hidden');
+      });
+
+      const summary = document.getElementById('summary');
+      summary.classList.remove('hidden');
+      summary.classList.add('visible');
+
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (userNameDisplay) {
+        userNameDisplay.textContent = userName || 'Traveler';
+      }
+
+      let output = '';
+      answers.forEach((ans, index) => {
+        output += `<p><strong>Q${index + 1}:</strong> ${ans || 'Not answered'}</p>`;
+      });
+      const answersDisplay = document.getElementById('answersDisplay');
+      if (answersDisplay) {
+        answersDisplay.innerHTML = output;
+      }
+
+      console.log("Quiz Answers for", userName, ":\n", answers.map((a, i) => `Q${i + 1}: ${a}`).join("\n"));
+
+      sendResultsByEmail(userName, output);
+    }
+
+    showQuestion(0);
+  </script>
+</body>
+
+</html>
